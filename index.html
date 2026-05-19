@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>松鼠的自我介绍</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: auto;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+    }
+
+    body {
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: #000;
+    }
+
+    .video-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.5s ease;
+      will-change: opacity;
+    }
+
+    .snap-section {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      pointer-events: none;
+    }
+
+    /* ── Loading Overlay ── */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #loading-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-content {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+
+    .loading-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.6);
+      margin: 0 3px;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Text Overlay ── */
+    #text-overlay {
+      position: fixed;
+      z-index: 2;
+      pointer-events: none;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 5vw 8vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .text-segment {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      max-width: 680px;
+      will-change: transform, opacity;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .text-segment.active {
+      display: flex;
+    }
+
+    .text-card {
+      background: rgba(250, 250, 250, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: clamp(20px, 3vw, 36px) clamp(24px, 4vw, 48px);
+      box-shadow: 0 2px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .text-segment h2 {
+      font-family: 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
+      font-weight: 900;
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      color: #1a1a1a;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      margin-bottom: 0.5em;
+    }
+
+    .text-segment .subtitle {
+      font-family: 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
+      font-weight: 400;
+      font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+      color: #606060;
+      letter-spacing: 0.03em;
+      margin-bottom: 1.2em;
+    }
+
+    .text-segment .body-text {
+      font-family: 'Noto Sans SC', -apple-system, sans-serif;
+      font-weight: 300;
+      font-size: clamp(0.9rem, 1.6vw, 1.1rem);
+      color: #333;
+      line-height: 1.75;
+      letter-spacing: 0.01em;
+    }
+
+    .text-segment .body-text strong {
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .text-segment .tag {
+      display: inline-block;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: #F5A623;
+      border: 1px solid #F5A623;
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin: 0.8em 4px 0;
+    }
+
+    .text-segment a {
+      color: #F5A623;
+      text-decoration: none;
+      position: relative;
+      pointer-events: auto;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .text-segment a::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: #F5A623;
+      transition: width 0.25s ease;
+    }
+
+    .text-segment a:hover::after {
+      width: 100%;
+    }
+
+    /* ── Scroll hint in seg-0 card ── */
+    .scroll-prompt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 1em;
+      color: #999;
+      font-size: 0.85rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      animation: promptPulse 2s ease-in-out infinite;
+    }
+
+    .scroll-prompt .arrow {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid #999;
+      border-bottom: 2px solid #999;
+      transform: rotate(45deg);
+    }
+
+    @keyframes promptPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ── Bottom scroll hint arrow ── */
+    #scroll-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    #scroll-hint.visible {
+      opacity: 1;
+    }
+
+    #scroll-hint span {
+      display: block;
+      width: 24px;
+      height: 24px;
+      border-right: 2px solid rgba(255,255,255,0.7);
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+      transform: rotate(45deg);
+      animation: hintBounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes hintBounce {
+      0%, 100% { margin-top: 0; opacity: 0.4; }
+      50% { margin-top: 8px; opacity: 1; }
+    }
+
+    /* ── Side-by-side cards (last segment) ── */
+    .text-segment.side-by-side {
+      flex-direction: row;
+      max-width: 900px;
+      gap: clamp(16px, 3vw, 32px);
+      align-items: stretch;
+    }
+
+    .text-segment.side-by-side .text-card {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(16px, 3vw, 32px);
+      margin-top: 1em;
+      flex-wrap: wrap;
+    }
+
+    .qr-code {
+      width: clamp(100px, 12vw, 150px);
+      height: auto;
+      border-radius: 8px;
+      pointer-events: auto;
+    }
+
+    .douyin-info {
+      text-align: left;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    .douyin-info .handle {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: #1a1a1a;
+    }
+
+    .douyin-info .account-id {
+      font-weight: 400;
+      font-size: 0.85rem;
+      color: #808080;
+      margin-top: 4px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      #text-overlay {
+        padding: 0 5vw 6vh;
+      }
+
+      .text-card {
+        border-radius: 12px;
+      }
+
+      .text-segment.side-by-side {
+        flex-direction: column;
+        max-width: 680px;
+      }
+
+      .cta-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .douyin-info {
+        text-align: center;
+      }
+
+      .qr-code {
+        max-width: 130px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading-overlay">
+    <div class="loading-content">
+      <p>正在加载</p>
+      <div style="margin-top:8px;">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="video-container">
+    <video id="intro-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/intro-loop.mp4"
+           muted playsinline preload="auto" autoplay loop
+           style="opacity: 1;"></video>
+    <video id="main-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/main.mp4"
+           muted playsinline preload="auto"
+           style="opacity: 0;"></video>
+    <video id="outro-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/outro-loop.mp4"
+           muted playsinline preload="auto" loop
+           style="opacity: 0;"></video>
+  </div>
+
+  <div id="text-overlay">
+    <!-- seg-0: default active in HTML -->
+    <div class="text-segment active" id="seg-0">
+      <div class="text-card">
+        <h2>嗨，我是松鼠</h2>
+        <p class="subtitle">一只住在汕头的小猫咪</p>
+        <p class="body-text">我的主人叫<strong>黄瑞克</strong>，是个整天捣鼓 AI 的怪人。<br>他写了代码会让我踩键盘检查，说这叫"猫测"。</p>
+        <div class="scroll-prompt">
+          <span>向下滚动看看</span>
+          <span class="arrow"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- seg-1: transition — pause at face close-up ~2.6s -->
+    <div class="text-segment" id="seg-1">
+      <div class="text-card">
+        <h2>他做了些有意思的东西</h2>
+        <p class="subtitle">猫猫导游时间</p>
+        <p class="body-text">主人说一个人闷头写代码最无聊了，<br>所以他把自己折腾的玩意儿都开源了出来。<br>来，我带你看看～</p>
+      </div>
+    </div>
+
+    <!-- seg-2: learnclaudecode — pause when cat sits ~4.0s -->
+    <div class="text-segment" id="seg-2">
+      <div class="text-card">
+        <h2>Claude Code 入门指南</h2>
+        <p class="subtitle">从零开始的 AI 编程手册</p>
+        <p class="body-text">主人说这是给所有想入门 AI 编程的人写的一本"说明书"。<br>从环境配置到实战项目，每一步都写得清清楚楚，<br>连我这只猫都快看懂了（并没有）。</p>
+        <span class="tag">教程</span>
+        <span class="tag">开源</span>
+        <p style="margin-top:1em;">
+          <a href="https://learnclaudecode.site" target="_blank" rel="noopener">learnclaudecode.site</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- seg-3: claude-for-cn-finance — timing unchanged, user said perfect -->
+    <div class="text-segment" id="seg-3">
+      <div class="text-card">
+        <h2>Claude for CN Finance</h2>
+        <p class="subtitle">中国金融从业者的 AI 工具箱</p>
+        <p class="body-text">主人把 Claude Code 接上了中国金融市场的数据，<br>A股研究、基金分析、固收理财、风险画像——<br>金融人想要的，他都塞进去了。还挺专业的。</p>
+        <span class="tag">金融</span>
+        <span class="tag">A股</span>
+        <span class="tag">基金</span>
+        <p style="margin-top:1em;">
+          <a href="https://github.com/rickrocks346/claude-for-cn-finance" target="_blank" rel="noopener">GitHub 仓库</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- seg-4: token estimator — moved here from old position (was mid-roll) -->
+    <div class="text-segment" id="seg-4">
+      <div class="text-card">
+        <h2>Token Estimator</h2>
+        <p class="subtitle">AI 编程的费用计算器</p>
+        <p class="body-text">用 AI 写代码要花多少钱？主人做了一个工具来帮你算。<br>输入项目类型，就能预估 token 消耗和费用，<br>他说 vibe coding 也要精打细算。</p>
+        <span class="tag">工具</span>
+        <span class="tag">效率</span>
+        <p style="margin-top:1em;">
+          <a href="https://github.com/rickrocks346/token-estimator" target="_blank" rel="noopener">GitHub 仓库</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- seg-5: douyin (left) + outro (right) side by side -->
+    <div class="text-segment side-by-side" id="seg-5">
+      <div class="text-card">
+        <h2>想看看我主人长什么样？</h2>
+        <div class="cta-row">
+          <img class="qr-code" src="assets/qrcode.webp" alt="抖音二维码" width="150" height="150">
+          <div class="douyin-info">
+            <p class="handle">黄瑞克（捣鼓AI版）</p>
+            <p class="account-id">抖音号：774234317</p>
+            <p style="margin-top:8px;font-size:0.85rem;color:#808080;">扫二维码 or 直接搜</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-card">
+        <h2>以后还会有更多好玩的</h2>
+        <p class="subtitle">记得常来看看哦</p>
+        <p class="body-text">主人还在捣鼓新东西，<br>我也要继续监督他写代码。<br>下次见～🐱</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="scroll-hint" class="visible">
+    <span></span>
+  </div>
+
+  <div id="spacer">
+    <div class="snap-section"></div>
+    <div class="snap-section"></div>
+    <div class="snap-section"></div>
+    <div class="snap-section"></div>
+    <div class="snap-section"></div>
+    <div class="snap-section"></div>
+  </div>
+
+  <script>
+    (function() {
+      // Prevent browser from restoring previous scroll position
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+
+      var introVideo = document.getElementById('intro-video');
+      var mainVideo = document.getElementById('main-video');
+      var outroVideo = document.getElementById('outro-video');
+      var scrollHint = document.getElementById('scroll-hint');
+      var loadingOverlay = document.getElementById('loading-overlay');
+      var snapSections = document.querySelectorAll('.snap-section');
+
+      // Loading state: hide overlay when all videos are ready
+      var videosReady = 0;
+      var videosTotal = 3;
+      function onVideoReady() {
+        videosReady++;
+        if (videosReady >= videosTotal) {
+          loadingOverlay.classList.add('hidden');
+          if (introVideo.paused) introVideo.play().catch(function() {});
+        }
+      }
+      introVideo.addEventListener('canplay', onVideoReady);
+      mainVideo.addEventListener('canplay', onVideoReady);
+      outroVideo.addEventListener('canplay', onVideoReady);
+      // Fallback: hide loading after 5s even if videos are still buffering
+      setTimeout(function() {
+        if (!loadingOverlay.classList.contains('hidden')) {
+          loadingOverlay.classList.add('hidden');
+          if (introVideo.paused) introVideo.play().catch(function() {});
+        }
+      }, 5000);
+
+      // 6 segments. main video split at specific timestamps, last segment runs to end
+      var segments = [
+        { id: 'seg-0', timeStart: 0, timeEnd: 0, video: 'intro', el: null },
+        { id: 'seg-1', timeStart: 0, timeEnd: 0, video: 'main',  el: null },
+        { id: 'seg-2', timeStart: 0, timeEnd: 0, video: 'main',  el: null },
+        { id: 'seg-3', timeStart: 0, timeEnd: 0, video: 'main',  el: null },
+        { id: 'seg-4', timeStart: 0, timeEnd: 0, video: 'main',  el: null },
+        { id: 'seg-5', timeStart: 0, timeEnd: 0, video: 'outro', el: null }
+      ];
+
+      segments.forEach(function(s) {
+        s.el = document.getElementById(s.id);
+      });
+
+      var currentIdx = -1;
+      var segPlaying = false;
+      var mainDuration = 0;
+
+      function init() {
+        mainDuration = mainVideo.duration;
+        if (isNaN(mainDuration) || mainDuration <= 0) {
+          requestAnimationFrame(init);
+          return;
+        }
+        // Non-uniform split based on key video moments
+        segments[1].timeStart = 0;
+        segments[1].timeEnd = 1.5;
+        segments[2].timeStart = 1.5;
+        segments[2].timeEnd = 5;
+        segments[3].timeStart = 5;
+        segments[3].timeEnd = 10.4;
+        segments[4].timeStart = 10.4;
+        segments[4].timeEnd = mainDuration;
+        activateSegment(0);
+      }
+
+      mainVideo.addEventListener('loadedmetadata', init);
+      if (mainVideo.readyState >= 1) init();
+      setTimeout(function() {
+        if (currentIdx === -1) activateSegment(0);
+      }, 2000);
+
+      function setVideoLayer(videoId) {
+        if (videoId === 'intro') {
+          introVideo.style.opacity = '1';
+          mainVideo.style.opacity = '0';
+          outroVideo.style.opacity = '0';
+          mainVideo.pause();
+          if (introVideo.paused) introVideo.play().catch(function() {});
+        } else if (videoId === 'main') {
+          introVideo.style.opacity = '0';
+          mainVideo.style.opacity = '1';
+          outroVideo.style.opacity = '0';
+          introVideo.pause();
+          outroVideo.pause();
+        } else if (videoId === 'outro') {
+          introVideo.style.opacity = '0';
+          mainVideo.style.opacity = '0';
+          outroVideo.style.opacity = '1';
+          mainVideo.pause();
+          outroVideo.currentTime = 0;
+          if (outroVideo.paused) outroVideo.play().catch(function() {});
+        }
+      }
+
+      function activateSegment(idx) {
+        if (idx === currentIdx) return;
+
+        var prevIdx = currentIdx;
+        currentIdx = idx;
+        var seg = segments[idx];
+        var prevSeg = segments[prevIdx];
+
+        if (prevSeg && prevSeg.el) {
+          prevSeg.el.classList.remove('active');
+          prevSeg.el.style.opacity = '0';
+          prevSeg.el.style.transform = 'translateY(20px)';
+        }
+        if (seg.el) {
+          seg.el.classList.add('active');
+          seg.el.style.opacity = '0';
+          seg.el.style.transform = 'translateY(20px)';
+          requestAnimationFrame(function() {
+            seg.el.style.opacity = '1';
+            seg.el.style.transform = 'translateY(0)';
+          });
+        }
+
+        setVideoLayer(seg.video);
+
+        if (seg.video === 'main' && mainDuration > 0) {
+          mainVideo.currentTime = seg.timeStart;
+          segPlaying = true;
+          mainVideo.play().catch(function() {});
+        } else {
+          segPlaying = false;
+        }
+
+        scrollHint.classList.add('visible');
+        clearTimeout(scrollHint._timeout);
+        scrollHint._timeout = setTimeout(function() {
+          scrollHint.classList.remove('visible');
+        }, 3000);
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            var snapIdx = Array.prototype.indexOf.call(snapSections, entry.target);
+            if (snapIdx >= 0 && snapIdx < segments.length) {
+              activateSegment(snapIdx);
+            }
+          }
+        });
+      }, { threshold: [0.5] });
+
+      snapSections.forEach(function(section) {
+        observer.observe(section);
+      });
+
+      function tick() {
+        requestAnimationFrame(tick);
+        if (!segPlaying || mainDuration <= 0) return;
+        var seg = segments[currentIdx];
+        if (!seg || seg.video !== 'main') return;
+        if (mainVideo.currentTime >= seg.timeEnd) {
+          mainVideo.pause();
+          segPlaying = false;
+        }
+      }
+
+      requestAnimationFrame(tick);
+
+      var hintHidden = false;
+      window.addEventListener('wheel', function() {
+        if (!hintHidden) {
+          hintHidden = true;
+          scrollHint.classList.remove('visible');
+        }
+      });
+
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+          e.preventDefault();
+          var next = Math.min(currentIdx + 1, segments.length - 1);
+          snapSections[next].scrollIntoView({ behavior: 'smooth' });
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+          e.preventDefault();
+          var prev = Math.max(currentIdx - 1, 0);
+          snapSections[prev].scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
