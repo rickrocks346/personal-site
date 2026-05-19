@@ -63,16 +63,22 @@ main 视频在 `init()` 中按特定时间戳分为 4 段（0→1.5s, 1.5→5s, 
 
 ## 部署
 
-上传 `personal-site/` 整个文件夹到静态托管服务。
+### 网页托管：GitHub Pages
+- 仓库：https://github.com/rickrocks346/personal-site
+- Pages 地址：https://rickrocks346.github.io/personal-site/
+- 分支：main，目录：/ (root)
+- 修改代码后 `git push` 即自动部署（约1-2分钟生效）
 
-**腾讯云 COS 静态网站托管：**
-1. 创建 COS 存储桶，开启"静态网站"功能
-2. 上传 index.html 到根目录，assets/ 保持子目录结构
-3. 设置默认文档：`index.html`
-4. 配置自定义域名 + CDN + HTTPS 证书
-5. 如有域名，替换 HTML 中 `[YOUR_DOMAIN]` 为实际域名
+### 视频托管：腾讯云 COS（香港节点）
+- 存储桶：personal-site-assets-1427894191
+- 地域：ap-hongkong
+- 视频 URL 格式：`https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/<filename>`
+- 如需更新视频：登录腾讯云 COS 控制台，直接替换文件（同名覆盖即可，URL 不变）
 
-所有资源使用相对路径，无需额外构建步骤。
+### 文件上传规则
+- `.gitignore` 排除 `assets/*.mp4`，视频不进入 Git 仓库
+- 部署到 GitHub Pages 的文件：index.html, CLAUDE.md, .gitignore, assets/qrcode.webp
+- 视频文件单独通过 COS 控制台上传
 
 ## 字号 / 颜色参考
 
