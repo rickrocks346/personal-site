@@ -3,14 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="x5-fullscreen" content="true">
-  <meta name="x5-page-mode" content="app">
-  <meta name="x5-orientation" content="portrait">
-  <meta http-equiv="Cache-Control" content="no-transform">
   <title>松鼠的自我介绍</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after {
       margin: 0;
@@ -31,7 +24,7 @@
       overscroll-behavior: none;
       -webkit-overflow-scrolling: touch;
       overflow-x: hidden;
-      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
     }
 
     #video-container {
@@ -48,11 +41,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: opacity 0.5s ease;
-      will-change: opacity;
     }
 
     .snap-section {
@@ -86,7 +74,7 @@
     .loading-content {
       text-align: center;
       color: rgba(255, 255, 255, 0.8);
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       font-weight: 300;
       font-size: 0.9rem;
       letter-spacing: 0.05em;
@@ -119,7 +107,6 @@
       left: 0;
       right: 0;
       padding: 0 5vw 8vh;
-      padding: 0 max(5vw, 20px) max(8vh, 60px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -145,8 +132,8 @@
     .text-card {
       background: rgba(250, 250, 250, 0.98);
       background: rgba(250, 250, 250, 0.92);
-      backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
       border-radius: 16px;
       padding: clamp(20px, 3vw, 36px) clamp(24px, 4vw, 48px);
       box-shadow: 0 2px 24px rgba(0, 0, 0, 0.08);
@@ -154,8 +141,14 @@
       min-width: 0;
     }
 
+    @supports not ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+      .text-card {
+        background: rgba(250, 250, 250, 0.98);
+      }
+    }
+
     .text-segment h2 {
-      font-family: 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
+      font-family: 'STSong', 'Songti SC', 'Noto Serif SC', 'Georgia', 'SimSun', serif;
       font-weight: 900;
       font-size: clamp(1.5rem, 5vw, 2.8rem);
       color: #1a1a1a;
@@ -165,7 +158,7 @@
     }
 
     .text-segment .subtitle {
-      font-family: 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
+      font-family: 'STSong', 'Songti SC', 'Noto Serif SC', 'Georgia', 'SimSun', serif;
       font-weight: 400;
       font-size: clamp(0.95rem, 3vw, 1.25rem);
       color: #606060;
@@ -174,7 +167,7 @@
     }
 
     .text-segment .body-text {
-      font-family: 'Noto Sans SC', -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       font-weight: 300;
       font-size: clamp(0.9rem, 2.5vw, 1.1rem);
       color: #333;
@@ -189,7 +182,7 @@
 
     .text-segment .tag {
       display: inline-block;
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       font-size: 0.75rem;
       font-weight: 500;
       letter-spacing: 0.05em;
@@ -233,7 +226,7 @@
       margin-top: 1em;
       color: #999;
       font-size: 0.85rem;
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       animation: promptPulse 2s ease-in-out infinite;
     }
 
@@ -313,11 +306,11 @@
 
     .douyin-info {
       text-align: left;
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
 
     .douyin-info .handle {
-      font-family: 'Noto Serif SC', serif;
+      font-family: 'STSong', 'Songti SC', 'Georgia', 'SimSun', serif;
       font-weight: 700;
       font-size: clamp(1rem, 2vw, 1.3rem);
       color: #1a1a1a;
@@ -334,7 +327,6 @@
     @media (max-width: 640px) {
       #text-overlay {
         padding: 0 5vw 6vh;
-        padding: 0 max(5vw, 20px) max(6vh, 50px);
       }
 
       .text-card {
@@ -397,18 +389,19 @@
   </div>
 
   <div id="video-container">
+    <canvas id="video-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
     <video id="intro-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/intro-loop.mp4"
-           muted playsinline webkit-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="portrait"
+           muted playsinline webkit-playsinline
            preload="auto" autoplay loop
-           style="opacity: 1;"></video>
+           style="position:absolute;top:0;left:0;width:0;height:0;opacity:0;pointer-events:none;"></video>
     <video id="main-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/main.mp4"
-           muted playsinline webkit-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="portrait"
+           muted playsinline webkit-playsinline
            preload="auto"
-           style="opacity: 0;"></video>
+           style="position:absolute;top:0;left:0;width:0;height:0;opacity:0;pointer-events:none;"></video>
     <video id="outro-video" class="video-layer" src="https://personal-site-assets-1427894191.cos.ap-hongkong.myqcloud.com/outro-loop.mp4"
-           muted playsinline webkit-playsinline x5-video-player-type="h5" x5-video-player-fullscreen="true" x5-video-orientation="portrait"
+           muted playsinline webkit-playsinline
            preload="auto" loop
-           style="opacity: 0;"></video>
+           style="position:absolute;top:0;left:0;width:0;height:0;opacity:0;pointer-events:none;"></video>
   </div>
 
   <div id="text-overlay">
@@ -525,6 +518,12 @@
       var scrollHint = document.getElementById('scroll-hint');
       var loadingOverlay = document.getElementById('loading-overlay');
       var snapSections = document.querySelectorAll('.snap-section');
+      var canvas = document.getElementById('video-canvas');
+      var ctx = canvas.getContext('2d');
+      var currentSource = introVideo;
+      var prevSource = null;
+      var fadeStart = 0;
+      var fadeDuration = 500;
 
       // Loading state: hide overlay when all videos are ready
       var videosReady = 0;
@@ -546,6 +545,56 @@
           if (introVideo.paused) introVideo.play().catch(function() {});
         }
       }, 5000);
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function drawFrame() {
+        requestAnimationFrame(drawFrame);
+        var src = currentSource;
+        if (!src || src.readyState < 2) return;
+
+        var vw = src.videoWidth;
+        var vh = src.videoHeight;
+        if (!vw || !vh) return;
+
+        var cw = canvas.width;
+        var ch = canvas.height;
+        var scale = Math.max(cw / vw, ch / vh);
+        var sw = cw / scale;
+        var sh = ch / scale;
+        var sx = (vw - sw) / 2;
+        var sy = (vh - sh) / 2;
+
+        ctx.clearRect(0, 0, cw, ch);
+
+        if (prevSource && prevSource.readyState >= 2 && prevSource.videoWidth) {
+          var elapsed = Date.now() - fadeStart;
+          if (elapsed < fadeDuration) {
+            var pvw = prevSource.videoWidth;
+            var pvh = prevSource.videoHeight;
+            var pscale = Math.max(cw / pvw, ch / pvh);
+            var psw = cw / pscale;
+            var psh = ch / pscale;
+            var psx = (pvw - psw) / 2;
+            var psy = (pvh - psh) / 2;
+            ctx.globalAlpha = 1;
+            ctx.drawImage(prevSource, psx, psy, psw, psh, 0, 0, cw, ch);
+            ctx.globalAlpha = Math.min(1, elapsed / fadeDuration);
+            ctx.drawImage(src, sx, sy, sw, sh, 0, 0, cw, ch);
+            ctx.globalAlpha = 1;
+            return;
+          }
+          prevSource = null;
+        }
+
+        ctx.drawImage(src, sx, sy, sw, sh, 0, 0, cw, ch);
+      }
+      drawFrame();
 
       // 6 segments. main video split at specific timestamps, last segment runs to end
       var segments = [
@@ -590,25 +639,25 @@
       }, 2000);
 
       function setVideoLayer(videoId) {
+        var target;
         if (videoId === 'intro') {
-          introVideo.style.opacity = '1';
-          mainVideo.style.opacity = '0';
-          outroVideo.style.opacity = '0';
+          target = introVideo;
           mainVideo.pause();
           if (introVideo.paused) introVideo.play().catch(function() {});
         } else if (videoId === 'main') {
-          introVideo.style.opacity = '0';
-          mainVideo.style.opacity = '1';
-          outroVideo.style.opacity = '0';
+          target = mainVideo;
           introVideo.pause();
           outroVideo.pause();
         } else if (videoId === 'outro') {
-          introVideo.style.opacity = '0';
-          mainVideo.style.opacity = '0';
-          outroVideo.style.opacity = '1';
+          target = outroVideo;
           mainVideo.pause();
           outroVideo.currentTime = 0;
           if (outroVideo.paused) outroVideo.play().catch(function() {});
+        }
+        if (target && target !== currentSource) {
+          prevSource = currentSource;
+          fadeStart = Date.now();
+          currentSource = target;
         }
       }
 
@@ -621,18 +670,22 @@
         var prevSeg = segments[prevIdx];
 
         if (prevSeg && prevSeg.el) {
-          prevSeg.el.classList.remove('active');
           prevSeg.el.style.opacity = '0';
           prevSeg.el.style.transform = 'translateY(20px)';
+          var prevEl = prevSeg.el;
+          setTimeout(function() {
+            prevEl.classList.remove('active');
+            prevEl.style.opacity = '';
+            prevEl.style.transform = '';
+          }, 400);
         }
         if (seg.el) {
           seg.el.classList.add('active');
           seg.el.style.opacity = '0';
           seg.el.style.transform = 'translateY(20px)';
-          requestAnimationFrame(function() {
-            seg.el.style.opacity = '1';
-            seg.el.style.transform = 'translateY(0)';
-          });
+          seg.el.offsetHeight;
+          seg.el.style.opacity = '1';
+          seg.el.style.transform = 'translateY(0)';
         }
 
         setVideoLayer(seg.video);
