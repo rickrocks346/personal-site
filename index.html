@@ -50,9 +50,8 @@
       pointer-events: none;
     }
 
-    /* ── Rotate Hint (portrait phone only) ── */
-    #rotate-hint {
-      display: none;
+    /* ── Mobile Hint (WeChat / portrait phone) ── */
+    #mobile-hint {
       position: fixed;
       top: 0;
       left: 0;
@@ -68,22 +67,9 @@
       font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
 
-    #rotate-hint .rotate-icon {
-      font-size: 3rem;
-      animation: rotatePhone 2s ease-in-out infinite;
-      margin-bottom: 1rem;
-    }
-
-    #rotate-hint p {
-      font-size: 1.1rem;
+    #mobile-hint p {
       font-weight: 300;
       letter-spacing: 0.05em;
-    }
-
-    #rotate-hint .rotate-sub {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 0.5rem;
     }
 
     @keyframes rotatePhone {
@@ -402,11 +388,32 @@
 </head>
 <body>
 
-  <div id="rotate-hint">
-    <div class="rotate-content">
-      <div class="rotate-icon">📱</div>
-      <p>请将手机横过来观看</p>
-      <p class="rotate-sub">本页面为横屏体验设计</p>
+  <div id="mobile-hint" style="display:none;">
+    <div class="hint-content">
+      <div id="wechat-hint" style="display:none;">
+        <p style="font-size:1.1rem;">请在浏览器中打开</p>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:0.5rem;">
+          本页面包含滚动视频互动，微信内无法正常显示
+        </p>
+        <button id="copy-link-btn"
+          style="margin-top:1.5rem;padding:12px 28px;
+          background:#F5A623;color:#000;border:none;
+          border-radius:8px;font-size:1rem;font-weight:500;
+          cursor:pointer;">
+          复制链接
+        </button>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:1rem;">
+          或点击右上角 ⋯ → 在浏览器中打开
+        </p>
+      </div>
+      <div id="rotate-hint-inner" style="display:none;">
+        <div style="font-size:3rem;margin-bottom:1rem;
+          animation:rotatePhone 2s ease-in-out infinite;">📱</div>
+        <p style="font-size:1.1rem;">请将手机横过来观看</p>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:0.5rem;">
+          本页面为横屏体验设计
+        </p>
+      </div>
     </div>
   </div>
 
@@ -545,17 +552,67 @@
       }
       window.scrollTo(0, 0);
 
-      var rotateHint = document.getElementById('rotate-hint');
-      function checkOrientation() {
-        var portrait = window.innerWidth < window.innerHeight;
-        var narrow = window.innerWidth <= 768;
-        rotateHint.style.display = (portrait && narrow) ? 'flex' : 'none';
+      var mobileHint = document.getElementById('mobile-hint');
+      var wechatHint = document.getElementById('wechat-hint');
+      var rotateHintInner = document.getElementById('rotate-hint-inner');
+      var copyBtn = document.getElementById('copy-link-btn');
+      var isWechat = /MicroMessenger/i.test(navigator.userAgent);
+
+      function checkDisplay() {
+        var isMobile = window.innerWidth <= 768;
+        var isPortrait = window.innerHeight > window.innerWidth;
+
+        if (isWechat && isMobile) {
+          mobileHint.style.display = 'flex';
+          wechatHint.style.display = 'block';
+          rotateHintInner.style.display = 'none';
+        } else if (isMobile && isPortrait) {
+          mobileHint.style.display = 'flex';
+          wechatHint.style.display = 'none';
+          rotateHintInner.style.display = 'block';
+        } else {
+          mobileHint.style.display = 'none';
+        }
       }
-      window.addEventListener('resize', checkOrientation);
+
+      checkDisplay();
+      window.addEventListener('resize', checkDisplay);
       window.addEventListener('orientationchange', function() {
-        setTimeout(checkOrientation, 100);
+        setTimeout(checkDisplay, 300);
       });
-      checkOrientation();
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+          var url = window.location.href;
+          var done = function() {
+            copyBtn.textContent = '已复制，请粘贴到浏览器打开';
+            copyBtn.style.background = '#4CAF50';
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(done).catch(function() {
+              var ta = document.createElement('textarea');
+              ta.value = url;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+              done();
+            });
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = url;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+      }
 
       var introVideo = document.getElementById('intro-video');
       var mainVideo = document.getElementById('main-video');
