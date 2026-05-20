@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>松鼠的自我介绍</title>
   <style>
     *, *::before, *::after {
@@ -48,6 +48,52 @@
       scroll-snap-align: start;
       scroll-snap-stop: always;
       pointer-events: none;
+    }
+
+    /* ── Rotate Hint (portrait phone only) ── */
+    #rotate-hint {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      background: #000;
+      color: #fff;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    #rotate-hint .rotate-icon {
+      font-size: 3rem;
+      animation: rotatePhone 2s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    #rotate-hint p {
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+
+    #rotate-hint .rotate-sub {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 0.5rem;
+    }
+
+    @keyframes rotatePhone {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(90deg); }
+      50%, 75% { transform: rotate(90deg); }
+    }
+
+    @media (max-width: 768px) and (orientation: portrait) {
+      #rotate-hint { display: flex; }
     }
 
     /* ── Loading Overlay ── */
@@ -356,26 +402,17 @@
       }
     }
 
-    @media (max-width: 380px) {
-      .text-segment h2 {
-        font-size: clamp(1.3rem, 5.5vw, 2.8rem);
-      }
-
-      .text-segment .body-text {
-        font-size: clamp(0.85rem, 3vw, 1.1rem);
-      }
-
-      .text-card {
-        padding: 16px 20px;
-      }
-
-      .scroll-prompt {
-        font-size: 0.78rem;
-      }
-    }
   </style>
 </head>
 <body>
+
+  <div id="rotate-hint">
+    <div class="rotate-content">
+      <div class="rotate-icon">📱</div>
+      <p>请将手机横过来观看</p>
+      <p class="rotate-sub">本页面为横屏体验设计</p>
+    </div>
+  </div>
 
   <div id="loading-overlay">
     <div class="loading-content">
