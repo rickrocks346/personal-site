@@ -92,10 +92,6 @@
       50%, 75% { transform: rotate(90deg); }
     }
 
-    @media (max-width: 768px) and (orientation: portrait) {
-      #rotate-hint { display: flex; }
-    }
-
     /* ── Loading Overlay ── */
     #loading-overlay {
       position: fixed;
@@ -548,6 +544,18 @@
         history.scrollRestoration = 'manual';
       }
       window.scrollTo(0, 0);
+
+      var rotateHint = document.getElementById('rotate-hint');
+      function checkOrientation() {
+        var portrait = window.innerWidth < window.innerHeight;
+        var narrow = window.innerWidth <= 768;
+        rotateHint.style.display = (portrait && narrow) ? 'flex' : 'none';
+      }
+      window.addEventListener('resize', checkOrientation);
+      window.addEventListener('orientationchange', function() {
+        setTimeout(checkOrientation, 100);
+      });
+      checkOrientation();
 
       var introVideo = document.getElementById('intro-video');
       var mainVideo = document.getElementById('main-video');
